@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>College Canteen - Cart</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+        }
+
+        .header {
+            background: #243b55;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px #00000015;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 18px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .food-name {
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .quantity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        button {
+            background: #243b55;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .delete {
+            background: #d93025;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 25px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🛒 Your Cart (<span id="cartCount">0</span> items)</h1>
+</div>
+
+<div class="container">
+
+    <div id="cartItems"></div>
+
+    <div class="total">
+        Total: ₹<span id="total">0</span>
+    </div>
+
+    <div class="actions">
+        <button onclick="location.href='/menu'">
+            ← Back to Menu
+        </button>
+
+        <button onclick="placeOrder()">
+            Place Order →
+        </button>
+    </div>
+
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+// Correct older cart items
+cart = cart.map(function(item) {
+    return {
+        name: item.name,
+        price: Number(item.price) || 0,
+        quantity: Number(item.quantity) > 0
+            ? Number(item.quantity)
+            : 1
+    };
+});
+
+function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function displayCart() {
+    let cartItems = document.getElementById("cartItems");
+    let total = 0;
+    let count = 0;
+
+    cartItems.innerHTML = "";
+
+    if (cart.length === 0) {
+        cartItems.innerHTML =
+            '<p class="empty">Your cart is empty. Add food from the menu!</p>';
+    }
+
+    cart.forEach(function(item, index) {
+        let quantity = Number(item.quantity);
+        let price = Number(item.price);
+
+        total += price * quantity;
+        count += quantity;
+
+        cartItems.innerHTML += `
+            <div class="item">
+                <span class="food-name">${item.name}</span>
+
+                <span>₹${price} each</span>
+
+                <div class="quantity">
+                    <button onclick="changeQuantity(${index}, -1)">−</button>
+                    <span>Qty: ${quantity}</span>
+                    <button onclick="changeQuantity(${index}, 1)">+</button>
+                </div>
+
+                <strong>₹${price * quantity}</strong>
+
+                <button class="delete"
+                    onclick="deleteItem(${index})"
+                    title="Remove item">🗑️</button>
+            </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = total;
+    document.getElementById("cartCount").innerText = count;
+
+    saveCart();
+}
+
+function changeQuantity(index, change) {
+    cart[index].quantity += change;
+
+    // Remove the item if its quantity reaches zero
+    if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+    }
+
+    displayCart();
+}
+
+function deleteItem(index) {
+    cart.splice(index, 1);
+    displayCart();
+}
+
+
+function placeOrder() {
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+    let total = cart.reduce(function(sum, item) {
+        return sum + Number(item.price) * Number(item.quantity);
+    }, 0);
+
+    let order = {
+        id: Date.now(),
+        items: cart.map(function(item) {
+            return {
+                name: item.name,
+                price: Number(item.price),
+                quantity: Number(item.quantity)
+            };
+        }),
+        total: total,
+        status: "Received",
+        date: new Date().toLocaleString()
+    };
+
+    orders.push(order);
+    localStorage.setItem("orders", JSON.stringify(orders));
+
+    localStorage.removeItem("cart");
+    window.location.href = "/order";
+}
+
+
+displayCart();
+</script>
+
+</body>
+</html>

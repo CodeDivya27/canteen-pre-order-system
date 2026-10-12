@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canteen Admin</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .header {
+            background: #243b55;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        .container {
+            width: 85%;
+            margin: 30px auto;
+        }
+
+        .order {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .order h2 {
+            color: #243b55;
+        }
+
+        .status {
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #243b55;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #141e30;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            color: #777;
+        }
+
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .items {
+            line-height: 1.8;
+        }
+
+        .order-date {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>👨‍💼 Canteen Admin Panel</h1>
+    <p>Order History</p>
+</div>
+
+<div class="container">
+
+    <div id="orders"></div>
+
+</div>
+
+<script>
+function displayOrders() {
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    let container = document.getElementById("orders");
+
+    container.innerHTML = "";
+
+    if (orders.length === 0) {
+        container.innerHTML =
+            '<div class="empty">' +
+            '<h2>No orders placed yet</h2>' +
+            '<p>Orders will appear here after a customer places an order.</p>' +
+            '</div>';
+        return;
+    }
+
+    // Show the newest order first
+    orders.slice().reverse().forEach(function(order) {
+
+        let itemsHTML = order.items.map(function(item) {
+            return `
+                <div>
+                    ${item.name} × ${item.quantity}
+                    — ₹${Number(item.price) * Number(item.quantity)}
+                </div>
+            `;
+        }).join("");
+
+        container.innerHTML += `
+            <div class="order">
+
+                <h2>Order #${order.id}</h2>
+
+                <p class="order-date">
+                    <b>Order Date:</b> ${order.date}
+                </p>
+
+                <div class="items">
+                    <b>Items Ordered:</b>
+                    ${itemsHTML}
+                </div>
+
+                <p class="total">
+                    Total: ₹${order.total}
+                </p>
+
+                <div class="status">
+                    Order Status:
+
+                    <select id="status-${order.id}">
+                        <option value="Received"
+                            ${order.status === "Received" ? "selected" : ""}>
+                            Received
+                        </option>
+
+                        <option value="Preparing"
+                            ${order.status === "Preparing" ? "selected" : ""}>
+                            Preparing
+                        </option>
+
+                        <option value="Ready"
+                            ${order.status === "Ready" ? "selected" : ""}>
+                            Ready
+                        </option>
+
+                        <option value="Completed"
+                            ${order.status === "Completed" ? "selected" : ""}>
+                            Completed
+                        </option>
+                    </select>
+                </div>
+
+                <button onclick="updateStatus(${order.id})">
+                    Update Status
+                </button>
+
+                <p id="message-${order.id}" class="success"></p>
+
+            </div>
+        `;
+    });
+}
+
+function updateStatus(id) {
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+    let order = orders.find(function(item) {
+        return item.id === id;
+    });
+
+    if (order) {
+        order.status = document.getElementById("status-" + id).value;
+
+        localStorage.setItem("orders", JSON.stringify(orders));
+
+        document.getElementById("message-" + id).innerText =
+            "✓ Order status updated successfully!";
+
+        displayOrders();
+    }
+}
+
+displayOrders();
+</script>
+
+</body>
+</html>
+

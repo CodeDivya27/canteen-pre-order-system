@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Confirmed</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            text-align: center;
+        }
+
+        .box {
+            width: 450px;
+            max-width: 85%;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .icon {
+            font-size: 60px;
+        }
+
+        h1 {
+            color: #243b55;
+        }
+
+        .order-id {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px;
+        }
+
+        .status {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        button {
+            background: #243b55;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <div class="icon">✅</div>
+
+    <h1>Order Confirmed!</h1>
+
+    <p>Thank you for ordering from College Canteen.</p>
+
+    <div class="order-id">
+        Order ID: #CM1025
+    </div>
+
+    <div class="status">
+        📦 Status: <b>Received</b>
+    </div>
+
+    <p>🍴 Please collect your order from the canteen.</p>
+
+    <button onclick="window.location.href='/menu'">
+        Back to Menu
+    </button>
+
+</div>
+
+</body>
+</html>
